@@ -1,0 +1,56 @@
+==========Error handling middler ware and Errohandler class=====================
+1) First we make app.js
+
+2) Then we connect it to server
+
+3) Then we pass data with data request
+
+4) Then we use middle ware in app so it is globaly accible
+
+Syntax:
+module.exports=(err,req,res,next)=>{
+    err.statusCode = err.statusCode || 500
+    err.message = err.message || 'Internal server message'
+   res.status(err.statusCode).json({
+    success: false,
+    message: err.message 
+   }) 
+
+5) Then we make Errorhanlder class and extends it with Error buitin express function
+
+Syntax: 
+class ErrorHandler extends Error{
+    constructor(message,statusCode){
+        super(message);
+        this.statusCode = statusCode
+        Error.captureStackTrace(this,this.constructor);
+    }
+}
+module.exports = ErrorHandler
+
+6) Then we return error if something goes wrong 
+
+Syntax:
+if (!findedProduct) {return next(new ErrorHandler("Product not found", 404))}
+
+--------------------Questions-----------------------------
+Question no 1: What is next function? 
+Answer no 1: next function use withing middleware it pass control to next middler ware but if it get Error so it stop and dont pass control to other middleware
+
+Question no 2: Question: Does err in middleware in related to Error if yes than how
+Answer: app.get('/') Route Handler:
+When a request is made to the root URL '/', the app.get route handler is executed.
+It calls next(new Error('Custom error')), which means it's passing an error object to the next middleware in the stack.
+app.use Middleware:
+
+The app.use middleware is a generic middleware that is executed for all routes.
+It has four parameters: err, req, res, and next.
+When the next function in the app.get route handler is called with an error (new Error('Custom error')), Express recognizes that an error occurred and skips to the next middleware function that has an err parameter.
+The app.use middleware then captures this error, and the err parameter holds the error object passed by next() in the route handler.
+Handling the Error in app.use:
+
+The app.use middleware sets the HTTP status to 404 (res.status(404)) and sends a JSON response with the error message (message: err.message).
+So, yes, the err in app.use is related to the error object created with new Error('Custom error') in the app.get route handler. This is a way to propagate errors through the middleware stack in Express, allowing for centralized error handling.
+
+Question no 3: Why We made ErrorHandler Class even we can also use Errorhandler middleware?
+Answer no 3: We cannot pass statuscode to Errorhandler middleware so we make ErrorHandler Class and inherits extend in simpe term connect it with Error buit in expressjs function.
